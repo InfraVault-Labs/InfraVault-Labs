@@ -1,16 +1,25 @@
-## Hi there 👋
+# 🖥️ InfraVault-Labs | System Loading... [██████████] 100%
 
-<!--
-**InfraVault-Labs/InfraVault-Labs** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+### 🛠️ Ingeniería de Sistemas & Arquitectura de Infraestructura
+Bienvenido a la bóveda oficial de **InfraVault**. Aquí desentrañamos los secretos de la tecnología de nivel empresarial para hacerla accesible y ejecutable.
 
-Here are some ideas to get you started:
+---
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+### 📂 Proyectos de Ingeniería Disponibles:
+*   **[TrueNAS CORE Master Guide]** - Administración avanzada de ZFS y almacenamiento masivo.
+*   **[Proxmox VE Implementation]** - Hiperconvergencia y gestión de clusters.
+*   **[OPNsense Security]** - (Próximamente) Blindaje de perímetros de red.
+
+---
+
+### 🚀 Nuestra Misión
+Convertir la documentación compleja en **manuales de ejecución pura**. Sin relleno, sin errores, solo ingeniería de alto nivel probada en laboratorio.
+
+---
+
+### 💬 Interacción con el Cerebro (AI Logs)
+¿Tienes una duda técnica o un escenario de fallo crítico? 
+> **Estado:** [ONLINE] - Interacción vía GitHub Discussions activa para suscriptores.
+
+---
+📫 **Contacto:** `infravaul.labs@gmail.com`
