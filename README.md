@@ -6,7 +6,7 @@ Bienvenido a la bóveda oficial de **InfraVault**. Aquí desentrañamos los secr
 ---
 
 ### 📂 Proyectos de Ingeniería Disponibles:
-*   **[TrueNAS CORE Master Guide]** - Administración avanzada de ZFS y almacenamiento masivo.
+* [TrueNAS CORE Master Guide](https://github.com) - Administración avanzada de ZFS y almacenamiento masivo.
 *   **[Proxmox VE Implementation]** - Hiperconvergencia y gestión de clusters.
 *   **[OPNsense Security]** - (Próximamente) Blindaje de perímetros de red.
 
