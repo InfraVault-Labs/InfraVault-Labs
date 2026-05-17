@@ -1,0 +1,65 @@
+---
+# ===================================================================
+# InfraVault-Labs - Automatización de Almacenamiento Centralizado (TrueNAS)
+# ===================================================================
+
+- name: Verificar el estado de la API de TrueNAS antes del aprovisionamiento
+  ansible.builtin.uri:
+    url: "http://{{ ansible_host }}/api/v2.0/core/get_info"
+    method: GET
+    user: root
+    password: "{{ client_pve_root_password }}"
+    force_basic_auth: yes
+    status_code: 200
+  register: truenas_api_status
+
+- name: Bloque de Aprovisionamiento de Almacenamiento ZFS
+  block:
+    - name: Crear Pool ZFS Espejo (RAID 1) basado en los SSDs de nivel empresarial
+      ansible.builtin.uri:
+        url: "http://{{ ansible_host }}/api/v2.0/pool"
+        method: POST
+        user: root
+        password: "{{ client_pve_root_password }}"
+        force_basic_auth: yes
+        body_format: json
+        body:
+          name: "{{ storage_pool_name }}"
+          encryption: false
+          topology:
+            data:
+              - type: MIRROR
+                disks:
+                  - sda
+                  - sdb
+        status_code: [200, 422] # Admite 422 si el pool ya fue inicializado en el taller
+      register: pool_creation
+
+    - name: Crear Dataset Dedicado para las Máquinas Virtuales de Proxmox
+      ansible.builtin.uri:
+        url: "http://{{ ansible_host }}/api/v2.0/pool/dataset"
+        method: POST
+        user: root
+        password: "{{ client_pve_root_password }}"
+        force_basic_auth: yes
+        body_format: json
+        body:
+          name: "{{ storage_pool_name }}/pve-storage"
+          type: DATASET
+          atime: "OFF"  # Desactivación estricta de atime para reducir el desgaste de los SSDs
+          compression: "LZ4" # Balance óptimo entre compresión y uso de CPU Xeon
+        status_code: [200, 422]
+
+    - name: Configurar e iniciar el servicio global de iSCSI sobre los 10 Gbps SFP+
+      ansible.builtin.uri:
+        url: "http://{{ ansible_host }}/api/v2.0/service/id/iscsi"
+        method: PUT
+        user: root
+        password: "{{ client_pve_root_password }}"
+        force_basic_auth: yes
+        body_format: json
+        body:
+          enable: true
+          state: STARTED
+        status_code: 200
+  when: truenas_api_status.status == 200
