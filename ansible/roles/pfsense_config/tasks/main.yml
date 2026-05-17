@@ -3,26 +3,65 @@
 # InfraVault-Labs - Automatización Perimetral y Seguridad (pfSense)
 # ===================================================================
 
-- name: Validar conectividad con la interfaz de gestión de pfSense
-  ansible.builtin.uri:
-    url: "https://{{ ansible_host }}/api/v1/system/status"
-    method: GET
-    validate_certs: no
-    status_code: [200, 401]
-  register: pfsense_api_check
-  ignore_errors: yes
+- name: Validar estado del motor XML de pfSense antes de la inyección
+  ansible.builtin.stat:
+    path: /conf/config.xml
+  register: pfsense_config_file
 
-- name: Alertas de Producción si la interfaz web no responde
-  ansible.builtin.debug:
-    msg: "Advertencia: pfSense no tiene la API activa o está en boot inicial. Se procederá con la carga de la plantilla XML base."
-  when: pfsense_api_check.failed
+- name: Bloque de Configuración de Interfaces y Segmentación VLAN
+  block:
+    - name: Inyectar definición de interfaces WAN Dual en el archivo de configuración
+      ansible.builtin.blockinfile:
+        path: /conf/config.xml
+        marker: "<!-- {mark} INFRAVAULT WAN DUAL CONFIG -->"
+        insertafter: "<interfaces>"
+        block: |
+          <wan>
+            <enable/>
+            <if>if-mgmt</if>
+            <descr><![CDATA[WAN_Netuno_Fibra]]></descr>
+            <ipaddr>dhcp</ipaddr>
+          </wan>
+          <opt1>
+            <enable/>
+            <if>if-san</if>
+            <descr><![CDATA[WAN_Fibex_Respaldo]]></descr>
+            <ipaddr>dhcp</ipaddr>
+          </opt1>
+          <lan>
+            <enable/>
+            <if>vmbr0</if>
+            <descr><![CDATA[MGMT_VLAN100]]></descr>
+            <ipaddr>192.168.100.1</ipaddr>
+            <subnet>24</subnet>
+          </lan>
 
-- name: Estructurar la matriz de VLANs corporativas dentro del Firewall
-  ansible.builtin.debug:
-    msg: "Inyectando interfaz para VLAN {{ item.value.id }} - Subred: {{ item.value.subnet }}"
-  loop: "{{ vlans_config | dict2items }}"
-  verbose: true
+    - name: Estructurar la matriz de VLANs de producción locales
+      ansible.builtin.blockinfile:
+        path: /conf/config.xml
+        marker: "<!-- {mark} INFRAVAULT VLAN SEGMENTATION -->"
+        insertafter: "<vlans>"
+        block: |
+          <vlan>
+            <if>vmbr0</if>
+            <tag>110</tag>
+            <descr><![CDATA[VLAN_CORP_DATOS]]></descr>
+            <vif>vlan110</vif>
+          </vlan>
+          <vlan>
+            <if>vmbr0</if>
+            <tag>120</tag>
+            <descr><![CDATA[VLAN_VOIP_VOZ]]></descr>
+            <vif>vlan120</vif>
+          </vlan>
+          <vlan>
+            <if>vmbr0</if>
+            <tag>130</tag>
+            <descr><![CDATA[VLAN_WIFI_GUEST]]></descr>
+            <vif>vlan130</vif>
+          </vlan>
 
-- name: Asegurar políticas estrictas de aislamiento Inter-VLAN (Default Deny)
-  ansible.builtin.debug:
-    msg: "Aplicando regla de cortafuegos: Bloquear todo el tráfico desde VLAN CORP hacia VLAN MGMT"
+    - name: Forzar recarga inmediata de la configuración de red y filtros de pfSense
+      ansible.builtin.command: /etc/rc.reload_all
+      changed_when: true
+  when: pfsense_config_file.stat.exists
