@@ -1,0 +1,24 @@
+[global]
+keyboard = "es"
+country = "ve"
+timezone = "America/Caracas"
+root_password = "{{ client_pve_root_password }}"
+mailto = "{{ client_msp_alert_email }}"
+fqdn = "{{ client_node_hostname }}.{{ client_domain }}"
+
+[modules]
+pve-installer = "automated"
+
+[disk-setup]
+filesystem = "zfs"
+zfs.ashift = 12
+zfs.compress = "on"
+hdsize = 0
+hd_list = ["sda", "sdb"]
+
+[network]
+source = "from-dhcp"
+dns = "{{ client_dns_server }}"
+
+[licensing]
+eula = "accept"

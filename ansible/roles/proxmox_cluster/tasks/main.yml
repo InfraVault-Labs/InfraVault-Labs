@@ -1,0 +1,38 @@
+---
+# ===================================================================
+# InfraVault-Labs - Automatización de Clúster Proxmox (Corosync)
+# ===================================================================
+
+- name: Verificar si el clúster ya se encuentra configurado
+  ansible.builtin.stat:
+    path: /etc/pve/corosync.conf
+  register: corosync_conf
+
+- name: Configuración exclusiva en el Nodo Primario (PVM-01)
+  block:
+    - name: Inicializar el clúster Proxmox en PVM-01 vía enlace dedicado
+      ansible.builtin.command: pvecm create infravault-cluster -link0 10.10.10.11
+      when: not corosync_conf.stat.exists
+
+    - name: Extraer la clave de unión (Join Ticket) de PVM-01
+      ansible.builtin.command: pvecm mtunnel
+      register: join_ticket
+      changed_when: false
+  when: inventory_hostname == 'pvm-01'
+
+- name: Configuración exclusiva en el Nodo Secundario (PVM-02)
+  block:
+    - name: Unir PVM-02 al clúster usando la interfaz morada dedicada
+      ansible.builtin.command: pvecm join 10.10.10.11 -link0 10.10.10.12
+      when: not corosync_conf.stat.exists
+  when: inventory_hostname == 'pvm-02'
+
+- name: Configurar Testigo de Quorum (QDevice) desde el Clúster hacia TrueNAS
+  ansible.builtin.apt:
+    name: corosync-qdevice
+    state: present
+
+- name: Añadir el voto externo de desempate en TrueNAS
+  ansible.builtin.command: pvecm qdevice setup 192.168.100.13
+  run_once: true
+  ignore_errors: yes

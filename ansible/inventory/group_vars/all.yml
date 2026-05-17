@@ -1,3 +1,14 @@
+# ===================================================================
+# VARIABLES DE PERSONALIZACIÓN DEL CLIENTE (EDITAR POR DESPLIEGUE)
+# ===================================================================
+client_name: "Farmacia Central C.A."
+client_domain: "farmaciacentral.com.ve"
+client_node_hostname: "pvm-01"
+client_msp_alert_email: "soporte@farmaciacentral.com.ve"
+client_pve_root_password: "ClaveSeguraCambiar2026!"
+client_dns_server: "1.1.1.1"
+
+
 ---
 # -------------------------------------------------------------------
 # InfraVault-Labs - Variables Globales del Sistema (all.yml)
@@ -41,7 +52,7 @@ net_san_mtu: 9000  # Activación estricta de Jumbo Frames para 10G SFP+
 
 # --- Parámetros de Almacenamiento ZFS / TrueNAS ---
 storage_san_protocol: "iscsi"  # Opciones validadas: iscsi | nfs
-storage_target_iqn: "://2026-05.com.infravault:storage.target01"
+storage_target_iqn: "iqn.2026-05.com.infravault:storage.target01"
 storage_pool_name: "tank-enterprise"
 
 # --- Sistema de Alertas y Soporte MSP ---
