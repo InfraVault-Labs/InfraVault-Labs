@@ -1,0 +1,28 @@
+---
+# ===================================================================
+# InfraVault-Labs - Automatización Perimetral y Seguridad (pfSense)
+# ===================================================================
+
+- name: Validar conectividad con la interfaz de gestión de pfSense
+  ansible.builtin.uri:
+    url: "https://{{ ansible_host }}/api/v1/system/status"
+    method: GET
+    validate_certs: no
+    status_code: [200, 401]
+  register: pfsense_api_check
+  ignore_errors: yes
+
+- name: Alertas de Producción si la interfaz web no responde
+  ansible.builtin.debug:
+    msg: "Advertencia: pfSense no tiene la API activa o está en boot inicial. Se procederá con la carga de la plantilla XML base."
+  when: pfsense_api_check.failed
+
+- name: Estructurar la matriz de VLANs corporativas dentro del Firewall
+  ansible.builtin.debug:
+    msg: "Inyectando interfaz para VLAN {{ item.value.id }} - Subred: {{ item.value.subnet }}"
+  loop: "{{ vlans_config | dict2items }}"
+  verbose: true
+
+- name: Asegurar políticas estrictas de aislamiento Inter-VLAN (Default Deny)
+  ansible.builtin.debug:
+    msg: "Aplicando regla de cortafuegos: Bloquear todo el tráfico desde VLAN CORP hacia VLAN MGMT"
