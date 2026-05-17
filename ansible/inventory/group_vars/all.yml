@@ -1,0 +1,49 @@
+---
+# -------------------------------------------------------------------
+# InfraVault-Labs - Variables Globales del Sistema (all.yml)
+# -------------------------------------------------------------------
+
+# --- Parámetros de Red Globales ---
+net_dns_servers:
+  - 1.1.1.1
+  - 8.8.8.8
+net_ntp_servers:
+  - 0.ve.pool.ntp.org
+  - 1.ve.pool.ntp.org
+
+# --- Segmentación de VLANs (LAN) ---
+vlans_config:
+  mgmt:
+    id: 100
+    subnet: "192.168.100.0/24"
+    gateway: "192.168.100.1"
+  corp:
+    id: 110
+    subnet: "192.168.110.0/24"
+    gateway: "192.168.110.1"
+  voip:
+    id: 120
+    subnet: "192.168.120.0/24"
+    gateway: "192.168.120.1"
+  wifi_guest:
+    id: 130
+    subnet: "192.168.130.0/24"
+    gateway: "192.168.130.1"
+  dmz:
+    id: 140
+    subnet: "192.168.140.0/24"
+    gateway: "192.168.140.1"
+
+# --- Redes Dedicadas Directas (Sin Switch de Almacenamiento) ---
+net_corosync_subnet: "10.10.10.0/24"
+net_san_subnet: "172.16.10.0/24"
+net_san_mtu: 9000  # Activación estricta de Jumbo Frames para 10G SFP+
+
+# --- Parámetros de Almacenamiento ZFS / TrueNAS ---
+storage_san_protocol: "iscsi"  # Opciones validadas: iscsi | nfs
+storage_target_iqn: "://2026-05.com.infravault:storage.target01"
+storage_pool_name: "tank-enterprise"
+
+# --- Sistema de Alertas y Soporte MSP ---
+msp_alert_email: "soporte-msp@infravault-labs.com"
+msp_monit_interval: "5m"
