@@ -10,14 +10,26 @@
   roles:
     - proxmox_base
 
-- name: Fase 2 - Configuración del Clúster y Alta Disponibilidad (HA)
+- name: Fase 2 - Aprovisionamiento de Almacenamiento Centralizado (TrueNAS)
+  hosts: storage
+  gather_facts: no
+  roles:
+    - truenas_storage
+
+- name: Fase 3 - Configuración del Clúster y Alta Disponibilidad (HA)
   hosts: proxmox
   gather_facts: yes
   become: true
   roles:
     - proxmox_cluster
 
-- name: Fase 3 - Protección Eléctrica Crítica (Monitoreo NUT)
+- name: Fase 4 - Red Perimetral, Balanceo WAN Dual y VLANs (pfSense)
+  hosts: firewall
+  gather_facts: no
+  roles:
+    - pfsense_config
+
+- name: Fase 5 - Protección Eléctrica Crítica (Monitoreo NUT)
   hosts: proxmox
   gather_facts: yes
   become: true
