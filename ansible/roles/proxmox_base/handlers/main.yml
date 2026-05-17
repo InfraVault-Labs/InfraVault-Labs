@@ -1,0 +1,5 @@
+---
+- name: Reiniciar servicio web pveproxy
+  ansible.builtin.systemctl:
+    name: pveproxy
+    state: restarted

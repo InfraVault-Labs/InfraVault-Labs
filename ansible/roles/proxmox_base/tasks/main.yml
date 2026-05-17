@@ -1,0 +1,33 @@
+$ ---
+# ===================================================================
+# InfraVault-Labs - Automatización Base Proxmox VE 9.1 Stable
+# ===================================================================
+
+- name: Desactivar repositorio comercial Enterprise de Proxmox
+  ansible.builtin.apt_repository:
+    repo: "deb https://proxmox.com trixie pve-enterprise"
+    state: absent
+    filename: pve-enterprise
+
+- name: Activar repositorio comunitario sin suscripción (No-Subscription)
+  ansible.builtin.apt_repository:
+    repo: "deb http://proxmox.com trixie pve-no-subscription"
+    state: present
+    filename: pve-no-subscription
+    update_cache: yes
+
+- name: Eliminar la alerta flotante de 'No Subscription' de la interfaz web
+  ansible.builtin.replace:
+    path: /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
+    regexp: 'if \((\.data\.status \?\?= .*)\) \{'
+    replace: 'if (false) {'
+  notify: Reiniciar servicio web pveproxy
+
+- name: Asegurar que las herramientas de red básicas estén instaladas
+  ansible.builtin.apt:
+    name:
+      - htop
+      - lsscsi
+      - nvme-cli
+      - unzip
+    state: presen
